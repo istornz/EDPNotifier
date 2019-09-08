@@ -4,6 +4,7 @@ const cheerio      = require('cheerio');
 const dotenv       = require('dotenv');
 const cron         = require('node-cron');
 const Push         = require( 'pushover-notifications' );
+const OneSignal    = require( 'onesignal-node' );
 const LocalStorage = require( 'node-localstorage' ).LocalStorage;
 
 // Configure DotEnv
@@ -15,6 +16,13 @@ const localStorage = new LocalStorage('./data');
 const pusher = new Push( {
   user: process.env.USER_KEY,
   token: process.env.API_TOKEN,
+});
+const oneSignalClient = new OneSignal.Client({      
+  userAuthKey: process.env.AUTH_KEY,
+  app: {
+    appAuthKey: process.env.APP_AUTH_KEY,
+    appId: process.env.APP_ID
+  }      
 });
 
 // Run the fetcher once it started
@@ -47,6 +55,8 @@ function fetcher() {
     // Check if it's a new deal or not :)
     if (latestSavedCommentId != currentLatestComment.id) {
       // It's a new deal !, let's create a push notification
+      
+      /* PushOver config
       var msg = {
         message: currentLatestComment.comment,
         title: 'New EDP Deal !',
@@ -56,9 +66,24 @@ function fetcher() {
 
       // Send the push !
       pusher.send(msg);
+      */
 
-      // Then save it for later use...
-      localStorage.setItem('latestSavedCommentId', currentLatestComment.id);
+      // OneSignal config
+      var msg = new OneSignal.Notification({
+        headings: {
+          en: 'New EDP Deal !'     
+        },
+        contents: {
+          en: currentLatestComment.comment      
+        },
+        included_segments: [ 'Active Users' ],
+        excluded_segments: [ 'Banned Users' ],
+      });
+      oneSignalClient.sendNotification(msg)
+        .finally(()=> {
+          // Then save it for later use...
+          localStorage.setItem('latestSavedCommentId', currentLatestComment.id);
+        });
     }
   })
 }
