@@ -16,6 +16,7 @@
     "dotenv": "8.1.0",
     "node-cron": "2.0.3",
     "node-localstorage": "1.3.1",
+    "onesignal-node": "^2.1.1",
     "puppeteer": "1.19.0",
     "pushover-notifications": "1.2.0"
   },
