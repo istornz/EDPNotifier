@@ -21,6 +21,6 @@
     "pushover-notifications": "1.2.0"
   },
   "devDependencies": {
-    "pm2": "3.5.1"
+    "pm2": "5.2.0"
   }
 }
